@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de-de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+<style>
+    body{
+        margin: 0;
+        background-color: rgb(196, 162, 99);
+        text-align: center;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    h1{
+        font-size: 3rem;
+    }
+
+    .center{
+        display: flex;
+        justify-content: center;
+    }
+
+    #egg-img {
+        height: 8rem;
+    }
+
+    .margin-top{
+        margin-top: 30px;
+    }
+
+    .timer{
+        font-size: 4rem;
+        color: #FFF;
+    }
+
+    .start-button{
+        color: black;
+        background-color: orange;
+        font-size: 3rem;
+        text-align: center;
+        border-radius: 5px;
+        padding: 0.8rem;
+        width: 10rem;
+    }
+
+    .start-button:hover{
+        cursor: pointer;
+    }
+
+    .minutes-input {
+        font-size: 2rem;
+        padding: 0.5rem;
+        border-radius: 5px;
+        border: none;
+        width: 5rem;
+        text-align: center;
+    }
+
+    .userinput{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+</style>
+
+<script>
+
+let backgroundmusic = new Audio('src/backgroundmusic.mp3');
+let alarm = new Audio('src/alarm.mp3');
+let timerStarted = false;
+let alarmStarted = false;
+let intervalId = null; // Speichert das Intervall
+
+function startTimer(){
+
+    const minutesInput = document.getElementById('minutesInput');
+    let minutes = parseInt(minutesInput.value); // Minutenangabe holen
+
+    if (isNaN(minutes) || minutes <= 0) { 
+        alert("Bitte gib eine gültige Minutenanzahl ein.");
+        return;
+    }
+
+    if(!timerStarted) // Timer wird gestartet
+    {
+        start_end_button.innerHTML = "Stop";
+        backgroundmusic.play();
+        
+        let startTime = new Date().getTime();
+        let fiveMinutes = 1000 * 60 * minutes;
+        let endTime = startTime + fiveMinutes;
+
+        intervalId = setInterval(function(){
+            let timeLeft = endTime - new Date().getTime();
+
+            if(timeLeft > 0){
+                let minutes = Math.floor(timeLeft / (1000 * 60));
+                let seconds = Math.round((timeLeft / 1000) % 60);
+                
+                if (seconds < 10) seconds = "0" + seconds;
+                
+                let text = '0' + minutes + ' : ' + seconds;
+                timer.innerHTML = text;
+            } else{
+                if(!alarmStarted)
+                {
+                    backgroundmusic.pause();
+                    alarmStarted = true;
+                    timer.innerHTML = '00 : 00';
+                    alarm.play();
+                    clearInterval(intervalId); // Timer stoppen, wenn die Zeit abgelaufen ist
+                }
+            }
+        }, 1000);
+
+        timerStarted = true;
+    } 
+    else // Timer wird gestoppt
+    {
+        stopTimer();
+    }
+}
+
+function stopTimer(){
+    clearInterval(intervalId); // Das Intervall stoppen
+    backgroundmusic.pause();   // Musik stoppen
+    backgroundmusic.currentTime = 0; // Musik zurücksetzen
+    alarm.pause();
+    alarm.currentTime = 0;
+    
+    timer.innerHTML = '05 : 00'; // Timer zurücksetzen
+    start_end_button.innerHTML = "Start"; // Button zurücksetzen
+    timerStarted = false; // Timer-Zustand zurücksetzen
+    alarmStarted = false;
+}
+
+</script>
+
+
+</head>
+<body>
+
+    <h1>Eieruhr</h1>
+
+    <!-- === Bild vom Ei === -->
+    <div class="center margin-top">
+        <img id="egg-img" src="img/egg.png" alt="Ei">
+    </div>
+    
+    <!-- === Userinput === -->
+    <div class="center margin-top userinput">
+        <p style="color: white; font-weight: bold; font-size: 2rem; margin: 0.8rem;">Minuten</p>
+        <input type="number" id="minutesInput" class="minutes-input" value="5" min="1">
+    </div>
+
+    <!-- === Timer === -->
+    <div class="center margin-top timer" id="timer">
+        05 : 00
+    </div>
+    
+    <!-- === Bild vom Start-Button === -->
+    <div class="center margin-top">
+        <div onclick="startTimer()" class="start-button" id="start_end_button">Start</div>        
+    </div>
+
+</body>
+</html>
